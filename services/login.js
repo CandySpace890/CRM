@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const createPool = require("../db");
 
+const fs = require('fs');
+const multer = require('multer');
 
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = 'your_secret_key'; 
@@ -277,7 +279,19 @@ router.get("/user/details", authenticateJWT, async (req, res) => {
         }
 
         const user = searchResults[0];
+        const imagePath = user.imagePath;
 
+        let imageBase64 = null;
+
+        // Check if the image exists and read it
+        if (imagePath && fs.existsSync(imagePath)) {
+            const imageData = fs.readFileSync(imagePath);
+            imageBase64 = imageData.toString('base64');
+        }
+
+        // Add the imageBase64 to the user object
+        user.image = imageBase64;
+        
         return res.status(200).send({
             status: 200,
             is_error: false,
@@ -302,6 +316,7 @@ router.get("/user/details", authenticateJWT, async (req, res) => {
 router.get("/user/list", authenticateJWT, async (req, res) => {
     let connection;
     try {
+        console.log("Users list")
         connection = await db.getConnection();
         const userId = req.userId;
 
@@ -340,6 +355,72 @@ router.get("/user/list", authenticateJWT, async (req, res) => {
         return res.status(200).send({
             status: 200,
             is_error: true,
+            message: error.message
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
+
+// Configure Multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const userId = req.userId; // Assuming userId is set in the request object by the authentication middleware
+        const dir = `uploads/${userId}`;
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        const userId = req.userId; // Assuming userId is set in the request object by the authentication middleware
+        cb(null, `${userId}_${Date.now()}_${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
+
+router.post("/user/update_user",authenticateJWT,upload.single('image'), async (req, res) => {
+    const {   firstName, lastName,phone,location  } = req.body;
+    const image = req.file ? req.file.path : null;
+    let connection;
+    try {
+        connection = await db.getConnection();
+        const userId = req.userId;
+
+        const searchQuery = "SELECT * FROM users WHERE id = ?";
+        const [searchResults] = await connection.query(searchQuery, [userId]);
+       
+        if (searchResults.length == 0) {
+            console.log("User doesnt exists",searchResults);
+            return res.status(200).send({
+                status: 200,
+                is_error:true,
+                message: 'User doesnt exists'
+            });
+        }
+        const user = searchResults[0];
+        const updateQuery = 'UPDATE users SET firstName = ?, lastName = ?, phone = ?, location = ?, imagePath = ? WHERE id = ?';
+        const imagePath = req.file ? req.file.path : user.imagePath; // Use the new image path if an image was uploaded
+
+        await connection.query(updateQuery, [firstName, lastName, phone, location, imagePath, userId]);
+
+      
+        return res.status(200).json({
+            status: 200,
+            error: false,
+            message: 'user details updated successfully.'
+        });
+
+
+    } catch (error) {
+        console.error("Error fetchinh user:", error.message);
+        return res.status(200).send({
+            status: 200,
+            is_error:true,
             message: error.message
         });
     } finally {

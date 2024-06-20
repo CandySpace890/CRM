@@ -11,10 +11,12 @@ app.use(express.json());
 // Import API routes
 const userRoutes = require("./services/login");
 const feedbackRoutes = require("./services/feedback");
+const fileUploadRoutes = require("./services/fileupload");
 
 // Use API routes
 app.use("/api", userRoutes);
 app.use("/api", feedbackRoutes);
+app.use("/api", fileUploadRoutes);
 
 // Handle MySQL connection errors
 db.on('error', (err) => {
