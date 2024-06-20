@@ -281,17 +281,15 @@ router.get("/user/details", authenticateJWT, async (req, res) => {
         const user = searchResults[0];
         const imagePath = user.imagePath;
 
-        let imageBase64 = null;
+        // let imageBase64 = null;
 
-        // Check if the image exists and read it
-        if (imagePath && fs.existsSync(imagePath)) {
-            const imageData = fs.readFileSync(imagePath);
-            imageBase64 = imageData.toString('base64');
-        }
+        // if (imagePath && fs.existsSync(imagePath)) {
+        //     const imageData = fs.readFileSync(imagePath);
+        //     imageBase64 = imageData.toString('base64');
+        // }
 
-        // Add the imageBase64 to the user object
-        user.image = imageBase64;
-        
+        // user.image = imageBase64;
+
         return res.status(200).send({
             status: 200,
             is_error: false,
@@ -365,10 +363,9 @@ router.get("/user/list", authenticateJWT, async (req, res) => {
 });
 
 
-// Configure Multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const userId = req.userId; // Assuming userId is set in the request object by the authentication middleware
+        const userId = req.userId;
         const dir = `uploads/${userId}`;
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
@@ -376,7 +373,7 @@ const storage = multer.diskStorage({
         cb(null, dir);
     },
     filename: function (req, file, cb) {
-        const userId = req.userId; // Assuming userId is set in the request object by the authentication middleware
+        const userId = req.userId;
         cb(null, `${userId}_${Date.now()}_${file.originalname}`);
     }
 });
@@ -404,7 +401,7 @@ router.post("/user/update_user",authenticateJWT,upload.single('image'), async (r
         }
         const user = searchResults[0];
         const updateQuery = 'UPDATE users SET firstName = ?, lastName = ?, phone = ?, location = ?, imagePath = ? WHERE id = ?';
-        const imagePath = req.file ? req.file.path : user.imagePath; // Use the new image path if an image was uploaded
+        const imagePath = req.file ? req.file.path : user.imagePath; 
 
         await connection.query(updateQuery, [firstName, lastName, phone, location, imagePath, userId]);
 
