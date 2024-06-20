@@ -198,13 +198,15 @@ router.get("/transactions/sales_by_month", authenticateJWT, async (req, res) => 
         }
 
         const currentYearData = salesByMonthResults.filter(row => row.year === currentYear).map(row => ({
-            month: moment().month(row.month - 1).format('MMMM'),
+            month:row.month,
+            month_name: moment().month(row.month - 1).format('MMMM'),
             year: row.year,
             total_sales: row.total_sales
         }));
 
         const previousYearData = salesByMonthResults.filter(row => row.year === previousYear).map(row => ({
-            month: moment().month(row.month - 1).format('MMMM'),
+            month:row.month,
+            month_name: moment().month(row.month - 1).format('MMMM'),
             year: row.year,
             total_sales: row.total_sales
         }));
