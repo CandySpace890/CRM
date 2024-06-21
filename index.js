@@ -1,13 +1,16 @@
 const express = require("express");
 const app = express();
 const createPool = require("./db"); // Import createPool function from db.js
+const cors = require('cors');
 
 // MySQL pool configuration
 const db = createPool();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
-
+app.use(cors({
+    origin: '*'
+}))
 // Import API routes
 const userRoutes = require("./services/login");
 const feedbackRoutes = require("./services/feedback");

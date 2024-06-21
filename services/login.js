@@ -90,9 +90,9 @@ router.post("/user/create", async (req, res) => {
         }
 
         if(parentId !=0){
-            const parentQuery = "select * FROM users WHERE parentId = ?";
+            const parentQuery = "select * FROM users WHERE id = ?";
             const [parentQueryResults] = await connection.query(parentQuery, [parentId]);
-            if (parentQueryResults.length > 0) {
+            if (parentQueryResults.length == 0) {
                 return res.status(200).send({
                     status: 200,
                     is_error:true,
@@ -107,7 +107,7 @@ router.post("/user/create", async (req, res) => {
         console.log("Created new User:", user[0].firstName);
         return res.status(200).send({
             status: 200,
-            is_error:true,
+            is_error:false,
             message: "successfully inserted",
             user_details:user[0]
         });
@@ -166,7 +166,7 @@ router.post("/user/login", async (req, res) => {
 
         return res.status(200).send({
             status: 200,
-            is_error:true,
+            is_error:false,
             message: "sucess",
             user: searchResults[0],
             token: token,
