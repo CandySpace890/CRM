@@ -176,7 +176,7 @@ router.get("/transactions/sales_by_month", authenticateJWT, async (req, res) => 
                 ORDER BY
                     year, month
             `;
-            [salesByMonthResults] = await connection.query(salesByMonthQuery, [userId, user.parentId, currentYear, previousYear]);
+            [salesByMonthResults] = await connection.query(salesByMonthQuery, [userId, userId, currentYear, previousYear]);
 
         } else {
             salesByMonthQuery = `

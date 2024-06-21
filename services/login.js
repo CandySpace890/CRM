@@ -363,26 +363,9 @@ router.get("/user/list", authenticateJWT, async (req, res) => {
 });
 
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const userId = req.userId;
-        const dir = `uploads/${userId}`;
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: function (req, file, cb) {
-        const userId = req.userId;
-        cb(null, `${userId}_${Date.now()}_${file.originalname}`);
-    }
-});
 
-const upload = multer({ storage });
-
-router.post("/user/update_user",authenticateJWT,upload.single('image'), async (req, res) => {
+router.post("/user/update_user",authenticateJWT, async (req, res) => {
     const {   firstName, lastName,phone,location  } = req.body;
-    const image = req.file ? req.file.path : null;
     let connection;
     try {
         connection = await db.getConnection();
@@ -400,10 +383,9 @@ router.post("/user/update_user",authenticateJWT,upload.single('image'), async (r
             });
         }
         const user = searchResults[0];
-        const updateQuery = 'UPDATE users SET firstName = ?, lastName = ?, phone = ?, location = ?, imagePath = ? WHERE id = ?';
-        const imagePath = req.file ? req.file.path : user.imagePath; 
-
-        await connection.query(updateQuery, [firstName, lastName, phone, location, imagePath, userId]);
+        const updateQuery = 'UPDATE users SET firstName = ?, lastName = ?, phone = ?, location = ? WHERE id = ?';
+        
+        await connection.query(updateQuery, [firstName, lastName, phone, location, userId]);
 
       
         return res.status(200).json({
