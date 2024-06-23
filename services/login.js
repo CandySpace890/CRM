@@ -232,7 +232,7 @@ router.post("/user/change_password",authenticateJWT, async (req, res) => {
         if (user.password !== currentPassword) {
             return res.status(401).json({
                 status: 401,
-                error: true,
+                is_error: true,
                 message: 'Incorrect current password.'
             });
         }
@@ -241,7 +241,7 @@ router.post("/user/change_password",authenticateJWT, async (req, res) => {
 
         return res.status(200).json({
             status: 200,
-            error: false,
+            is_error: false,
             message: 'Password updated successfully.'
         });
 
@@ -390,7 +390,7 @@ router.post("/user/update_user",authenticateJWT, async (req, res) => {
       
         return res.status(200).json({
             status: 200,
-            error: false,
+            is_error: false,
             message: 'user details updated successfully.'
         });
 

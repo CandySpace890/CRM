@@ -23,7 +23,7 @@ app.use("/api", fileUploadRoutes);
 
 // Handle MySQL connection errors
 db.on('error', (err) => {
-    console.error('MySQL pool error:', err.message);
+    console.error('MySQL pool is_error', err.message);
 });
 
 // Start the server
