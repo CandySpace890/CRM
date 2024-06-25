@@ -149,14 +149,13 @@ router.post("/transactions/upload_csv", authenticateJWT, upload.single('csvFile'
         }
     }
 });
-
 router.get("/transactions/sales_by_month", authenticateJWT, async (req, res) => {
     let connection;
     const company = req.query.company;
-    console.log("Request",req.query.company);
+    console.log("Request", req.query.company);
     if (!company) {
         return res.status(400).send({
-            status: 200,
+            status: 400,
             is_error: true,
             message: 'company is required.'
         });
@@ -218,26 +217,39 @@ router.get("/transactions/sales_by_month", authenticateJWT, async (req, res) => 
             [salesByMonthResults] = await connection.query(salesByMonthQuery, [userId, currentYear, previousYear, company]);
         }
 
-        const currentYearData = salesByMonthResults.filter(row => row.year === currentYear).map(row => ({
-            month: row.month,
-            month_name: moment().month(row.month - 1).format('MMMM'),
-            year: row.year,
-            total_sales: row.total_sales
-        }));
+        let currentYearTotal = 0;
+        const currentYearData = salesByMonthResults.filter(row => row.year === currentYear).map(row => {
+            currentYearTotal += parseFloat(row.total_sales);
+            return {
+                month: row.month,
+                month_name: moment().month(row.month - 1).format('MMMM'),
+                year: row.year,
+                total_sales: row.total_sales
+            };
+        });
 
-        const previousYearData = salesByMonthResults.filter(row => row.year === previousYear).map(row => ({
-            month: row.month,
-            month_name: moment().month(row.month - 1).format('MMMM'),
-            year: row.year,
-            total_sales: row.total_sales
-        }));
+        let previousYearTotal = 0;
+        const previousYearData = salesByMonthResults.filter(row => row.year === previousYear).map(row => {
+            previousYearTotal += parseFloat(row.total_sales);
+            return {
+                month: row.month,
+                month_name: moment().month(row.month - 1).format('MMMM'),
+                year: row.year,
+                total_sales: row.total_sales
+            };
+        });
+
+        const difference = currentYearTotal - previousYearTotal;
 
         res.status(200).json({
             status: 200,
             is_error: false,
             data: {
                 current: currentYearData,
-                previous: previousYearData
+                previous: previousYearData,
+                previousSum: previousYearTotal,
+                currentSum: currentYearTotal,
+                difference
             }
         });
 
@@ -255,6 +267,7 @@ router.get("/transactions/sales_by_month", authenticateJWT, async (req, res) => 
         }
     }
 });
+
 
 
 router.get("/transactions/company_summary", authenticateJWT, async (req, res) => {
