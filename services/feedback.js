@@ -80,7 +80,7 @@ router.post("/feedback/create",authenticateJWT, async (req, res) => {
         
         return res.status(200).send({
             status: 200,
-            is_error:true,
+            is_error:false,
             message: "successfully created",
             createdId: result.insertId
         });
@@ -122,15 +122,15 @@ router.post("/feedback/list",authenticateJWT, async (req, res) => {
         const user = searchResults[0]
         var feedBackSearchQuery
         if(user.parentId ==0){
-            feedBackSearchQuery = "select * from feedbacks where parentId = ?";
+            feedBackSearchQuery = "SELECT feedbacks.*, users.email AS email FROM feedbacks JOIN users ON feedbacks.userId = users.id WHERE feedbacks.parentId = ?";
         }else{
-            feedBackSearchQuery = "select * from feedbacks where userId = ?";
+            feedBackSearchQuery = "select feedbacks.*, users.email as email from feedbacks join users on feedbacks.userId = users.id where feedbacks.userId = ?";
         }
         const [feedbackSearchResults] = await connection.query(feedBackSearchQuery, [user.id]);
         return res.status(200).send({
             status: 200,
             is_error:true,
-            message: "sucess",
+            message: "success",
             user: feedbackSearchResults
         });
     } catch (error) {

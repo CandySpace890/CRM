@@ -230,8 +230,8 @@ router.post("/user/change_password",authenticateJWT, async (req, res) => {
         const user = searchResults[0];
 
         if (user.password !== currentPassword) {
-            return res.status(401).json({
-                status: 401,
+            return res.status(200).json({
+                status: 200,
                 is_error: true,
                 message: 'Incorrect current password.'
             });

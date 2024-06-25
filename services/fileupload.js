@@ -255,8 +255,8 @@ router.get("/transactions/sales_by_month", authenticateJWT, async (req, res) => 
 
     } catch (error) {
         console.error("Error fetching sales by month:", error.message);
-        res.status(500).json({
-            status: 500,
+        res.status(200).json({
+            status: 200,
             is_error: true,
             message: error.message
         });
