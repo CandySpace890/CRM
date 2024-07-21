@@ -344,7 +344,8 @@ router.get("/transactions/company_summary", authenticateJWT, async (req, res) =>
             data: {
                 total_budget: totalBudget,
                 user_count: userCount,
-                total_profit: totalProfit
+                total_profit: totalProfit,
+                total_sales:totalSales
             }
         });
 

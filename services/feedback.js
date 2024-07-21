@@ -129,7 +129,7 @@ router.post("/feedback/list",authenticateJWT, async (req, res) => {
         const [feedbackSearchResults] = await connection.query(feedBackSearchQuery, [user.id]);
         return res.status(200).send({
             status: 200,
-            is_error:true,
+            is_error:false,
             message: "success",
             user: feedbackSearchResults
         });
